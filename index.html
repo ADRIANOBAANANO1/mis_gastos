@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="theme-color" content="#0f0f0f"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<title>Mis Gastos</title>
+<link rel="manifest" id="manifest-placeholder"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0f0f0f;
+  --bg2: #1a1a1a;
+  --bg3: #242424;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.15);
+  --text: #f0ede8;
+  --text2: #888880;
+  --text3: #555550;
+  --accent: #c8f06e;
+  --accent-dark: #8ab840;
+  --danger: #f06e6e;
+  --warn: #f0b96e;
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --r: 12px;
+  --r-sm: 8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;overflow:hidden;}
+#app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;}
+
+/* Header */
+.hdr{padding:16px 20px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border);}
+.hdr-title{font-size:18px;font-weight:500;letter-spacing:-0.3px;}
+.hdr-sub{font-size:12px;color:var(--text2);font-family:var(--mono);}
+.notif-btn{width:36px;height:36px;border-radius:50%;border:0.5px solid var(--border2);background:var(--bg2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;}
+
+/* Scroll content */
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 20px 100px;}
+
+/* Bottom nav */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;display:flex;background:rgba(15,15,15,0.95);backdrop-filter:blur(12px);border-top:0.5px solid var(--border);padding:8px 4px 20px;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;cursor:pointer;border:none;background:none;color:var(--text2);font-family:var(--sans);font-size:10px;transition:color 0.15s;}
+.nav-item.active{color:var(--accent);}
+.nav-icon{font-size:20px;line-height:1;}
+.nav-badge{position:absolute;top:-2px;right:50%;transform:translateX(14px);background:var(--danger);color:#fff;font-size:10px;font-family:var(--mono);padding:1px 5px;border-radius:99px;min-width:16px;text-align:center;}
+.nav-item{position:relative;}
+
+/* Cards */
+.card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px;}
+.card-title{font-size:12px;color:var(--text2);font-family:var(--mono);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:12px;}
+
+/* Inputs */
+label{font-size:12px;color:var(--text2);display:block;margin-bottom:6px;font-family:var(--mono);}
+input,select,textarea{width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--r-sm);padding:10px 12px;color:var(--text);font-family:var(--sans);font-size:15px;outline:none;appearance:none;-webkit-appearance:none;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
+select option{background:var(--bg2);}
+textarea{height:72px;resize:none;}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 20px;border-radius:var(--r-sm);font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all 0.15s;letter-spacing:-0.1px;}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:var(--accent);color:#0f0f0f;}
+.btn-primary:hover{background:#d4f77e;}
+.btn-ghost{background:var(--bg3);color:var(--text);border:0.5px solid var(--border2);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+.btn-danger{background:transparent;color:var(--danger);border:0.5px solid var(--danger);}
+.btn-sm{padding:7px 14px;font-size:13px;}
+.btn-full{width:100%;}
+
+/* Metrics */
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.metrics-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
+.metric{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r);padding:14px 12px;}
+.metric-label{font-size:11px;color:var(--text2);font-family:var(--mono);margin-bottom:6px;}
+.metric-value{font-size:22px;font-weight:500;font-family:var(--mono);color:var(--accent);}
+.metric-value.normal{color:var(--text);}
+
+/* Gasto item */
+.gasto-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid var(--border);}
+.gasto-item:last-child{border-bottom:none;}
+.gasto-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.gasto-info{flex:1;min-width:0;}
+.gasto-desc{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.gasto-meta{font-size:11px;color:var(--text2);font-family:var(--mono);margin-top:2px;}
+.gasto-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+.gasto-amount{font-size:14px;font-weight:500;font-family:var(--mono);}
+.badge{display:inline-flex;padding:2px 8px;border-radius:99px;font-size:11px;font-family:var(--mono);}
+.badge-pending{background:rgba(240,185,110,0.15);color:var(--warn);}
+.badge-signed{background:rgba(200,240,110,0.15);color:var(--accent);}
+
+/* Bar chart */
+.cat-bar{margin-bottom:14px;}
+.cat-header{display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;}
+.cat-name{color:var(--text2);}
+.cat-amount{font-family:var(--mono);color:var(--text);}
+.bar-track{height:4px;background:var(--bg3);border-radius:99px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:99px;transition:width 0.5s cubic-bezier(0.4,0,0.2,1);}
+
+/* Day groups */
+.day-header{font-size:11px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.08em;padding:12px 0 6px;display:flex;justify-content:space-between;}
+.day-total{color:var(--text2);}
+
+/* Parse result */
+.parse-box{background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--r-sm);padding:12px;margin-top:10px;}
+.parse-row{display:flex;justify-content:space-between;padding:3px 0;font-size:13px;}
+.parse-key{color:var(--text2);font-family:var(--mono);}
+.parse-val{font-weight:500;}
+
+/* Toast */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--bg2);border:0.5px solid var(--border2);color:var(--text);padding:10px 20px;border-radius:var(--r);font-size:13px;opacity:0;transition:all 0.25s;pointer-events:none;z-index:999;white-space:nowrap;max-width:90vw;text-align:center;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.success{border-color:var(--accent);color:var(--accent);}
+.toast.error{border-color:var(--danger);color:var(--danger);}
+
+/* Section */
+.section{display:none;}
+.section.active{display:block;}
+
+/* Empty */
+.empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:14px;}
+.empty-icon{font-size:40px;margin-bottom:12px;display:block;}
+
+/* Row layouts */
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.field{margin-bottom:12px;}
+
+/* Month nav */
+.month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.month-label{font-size:16px;font-weight:500;}
+.month-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:0.5px solid var(--border2);background:var(--bg2);color:var(--text);cursor:pointer;font-size:18px;}
+
+/* Notif modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:flex-end;z-index:100;opacity:0;pointer-events:none;transition:opacity 0.2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r) var(--r) 0 0;padding:24px 20px 40px;width:100%;transform:translateY(20px);transition:transform 0.25s;}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-title{font-size:16px;font-weight:500;margin-bottom:4px;}
+.modal-sub{font-size:13px;color:var(--text2);margin-bottom:20px;}
+
+/* Sign animate */
+@keyframes pulse-green{0%,100%{box-shadow:0 0 0 0 rgba(200,240,110,0.4);}50%{box-shadow:0 0 0 8px rgba(200,240,110,0);}}
+.sign-btn-anim{animation:pulse-green 1.5s infinite;}
+
+/* Separator */
+.sep{height:0.5px;background:var(--border);margin:16px 0;}
+
+/* Delete btn */
+.del-btn{background:none;border:none;color:var(--text3);cursor:pointer;padding:4px;font-size:16px;line-height:1;}
+.del-btn:hover{color:var(--danger);}
+
+/* Firma stamp */
+.firma-stamp{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:4px;font-size:11px;font-family:var(--mono);border:0.5px solid var(--accent);color:var(--accent);}
+
+/* Switch */
+.switch-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:0.5px solid var(--border);}
+.switch-row:last-child{border-bottom:none;}
+.switch-label{font-size:14px;}
+.switch-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+.switch{position:relative;width:44px;height:26px;flex-shrink:0;}
+.switch input{opacity:0;width:0;height:0;}
+.switch-slider{position:absolute;inset:0;background:var(--bg3);border:0.5px solid var(--border2);border-radius:99px;cursor:pointer;transition:background 0.2s;}
+.switch-slider:before{content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:var(--text2);top:2px;left:2px;transition:transform 0.2s,background 0.2s;}
+input:checked+.switch-slider{background:rgba(200,240,110,0.2);border-color:var(--accent);}
+input:checked+.switch-slider:before{background:var(--accent);transform:translateX(18px);}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="hdr">
+    <div>
+      <div class="hdr-title">Mis gastos</div>
+      <div class="hdr-sub" id="hdr-fecha"></div>
+    </div>
+    <div class="notif-btn" id="notif-status-btn" title="Estado notificaciones">🔔</div>
+  </div>
+
+  <div class="content">
+    <!-- REGISTRAR -->
+    <div id="sec-registrar" class="section active">
+      <div class="card">
+        <div class="card-title">Pegar notificación</div>
+        <div class="field">
+          <label>Texto de Google Pay</label>
+          <textarea id="notif-txt" placeholder="Ej: Pagaste $2.450 en Starbucks con tu tarjeta terminada en 4521"></textarea>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="parseNotif()">Detectar automáticamente</button>
+        <div id="parse-box" style="display:none;" class="parse-box">
+          <div class="parse-row"><span class="parse-key">monto</span><span class="parse-val" id="p-monto"></span></div>
+          <div class="parse-row"><span class="parse-key">comercio</span><span class="parse-val" id="p-comercio"></span></div>
+          <div style="margin-top:10px;"><button class="btn btn-primary btn-sm" onclick="useParsed()">Usar estos datos ↓</button></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Datos del gasto</div>
+        <div class="row2">
+          <div>
+            <label>Monto ($)</label>
+            <input type="number" id="m-monto" placeholder="0" step="1" inputmode="decimal"/>
+          </div>
+          <div>
+            <label>Fecha</label>
+            <input type="date" id="m-fecha"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>Descripción</label>
+          <input type="text" id="m-desc" placeholder="Nombre del comercio o concepto"/>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>Categoría</label>
+            <select id="m-cat">
+              <option>🍽 Comida</option>
+              <option>🛒 Supermercado</option>
+              <option>🚌 Transporte</option>
+              <option>🎬 Entretenimiento</option>
+              <option>💊 Salud</option>
+              <option>👕 Ropa</option>
+              <option>⚡ Servicios</option>
+              <option>📦 Otro</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Método</label>
+            <select id="m-metodo">
+              <option>Google Pay</option>
+              <option>Tarjeta débito</option>
+              <option>Tarjeta crédito</option>
+              <option>Efectivo</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="registrar()">Registrar gasto</button>
+      </div>
+    </div>
+
+    <!-- PENDIENTES -->
+    <div id="sec-pendientes" class="section">
+      <div id="pendientes-container"></div>
+      <div id="firmados-container"></div>
+    </div>
+
+    <!-- REPORTE -->
+    <div id="sec-reporte" class="section">
+      <div class="month-nav">
+        <button class="month-btn" onclick="cambiarMes(-1)">‹</button>
+        <span class="month-label" id="mes-label"></span>
+        <button class="month-btn" onclick="cambiarMes(1)">›</button>
+      </div>
+      <div class="metrics-3">
+        <div class="metric"><div class="metric-label">total</div><div class="metric-value" id="r-total">$0</div></div>
+        <div class="metric"><div class="metric-label">gastos</div><div class="metric-value normal" id="r-count">0</div></div>
+        <div class="metric"><div class="metric-label">firmados</div><div class="metric-value normal" id="r-signed">0/0</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Por categoría</div>
+        <div id="r-cats"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Por día</div>
+        <div id="r-dias"></div>
+      </div>
+    </div>
+
+    <!-- CONFIG -->
+    <div id="sec-config" class="section">
+      <div class="card">
+        <div class="card-title">Recordatorio diario</div>
+        <div class="field">
+          <label>Hora para firmar gastos</label>
+          <input type="time" id="hora-firma" value="21:00"/>
+        </div>
+        <div class="switch-row">
+          <div>
+            <div class="switch-label">Activar notificación</div>
+            <div class="switch-sub" id="notif-sw-sub">Se enviará a la hora configurada</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="notif-sw" onchange="toggleNotif()"/>
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-ghost btn-sm" onclick="guardarHora()">Guardar horario</button>
+          <button class="btn btn-ghost btn-sm" onclick="testNotif()">Probar notificación</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Instalar como app</div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6;">Para instalar en tu pantalla de inicio abrí este archivo en Chrome y tocá el botón de abajo, o usá el menú → "Agregar a pantalla de inicio".</p>
+        <button class="btn btn-ghost btn-sm" id="install-btn" style="display:none;" onclick="installPWA()">Instalar en pantalla de inicio</button>
+        <p style="font-size:12px;color:var(--text3);font-family:var(--mono);" id="install-note">Abrí desde Chrome para ver la opción de instalación.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Datos</div>
+        <div class="switch-row">
+          <div><div class="switch-label">Exportar gastos</div><div class="switch-sub">Descarga JSON con todo</div></div>
+          <button class="btn btn-ghost btn-sm" onclick="exportar()">Exportar</button>
+        </div>
+        <div class="switch-row">
+          <div><div class="switch-label" style="color:var(--danger);">Borrar todo</div><div class="switch-sub">Elimina todos los gastos</div></div>
+          <button class="btn btn-danger btn-sm" onclick="borrarTodo()">Borrar</button>
+        </div>
+      </div>
+
+      <p style="text-align:center;font-size:12px;color:var(--text3);font-family:var(--mono);margin-top:8px;">mis-gastos v1.0 · datos en localStorage</p>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="nav">
+    <button class="nav-item active" onclick="showSec('registrar',this)">
+      <span class="nav-icon">＋</span>
+      <span>Registrar</span>
+    </button>
+    <button class="nav-item" onclick="showSec('pendientes',this)" id="nav-pendientes">
+      <span class="nav-icon">✍</span>
+      <span>Firmar</span>
+      <span class="nav-badge" id="badge" style="display:none;">0</span>
+    </button>
+    <button class="nav-item" onclick="showSec('reporte',this)">
+      <span class="nav-icon">📊</span>
+      <span>Reporte</span>
+    </button>
+    <button class="nav-item" onclick="showSec('config',this)">
+      <span class="nav-icon">⚙</span>
+      <span>Config</span>
+    </button>
+  </nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+let gastos = JSON.parse(localStorage.getItem('gastos') || '[]');
+let viewMes = new Date();
+let deferredPrompt = null;
+
+const CAT_COLORS = {
+  'Comida':'#8ab840','Supermercado':'#3B6D11','Transporte':'#378ADD',
+  'Entretenimiento':'#7F77DD','Salud':'#1D9E75','Ropa':'#D4537E',
+  'Servicios':'#BA7517','Otro':'#888780'
+};
+
+function save() { localStorage.setItem('gastos', JSON.stringify(gastos)); }
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('m-fecha').value = today;
+  const d = new Date();
+  document.getElementById('hdr-fecha').textContent =
+    d.toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'});
+
+  const hora = localStorage.getItem('hora_firma') || '21:00';
+  document.getElementById('hora-firma').value = hora;
+
+  const notifOn = localStorage.getItem('notif_on') === '1';
+  document.getElementById('notif-sw').checked = notifOn;
+  updateNotifStatus();
+  scheduleCheck();
+  renderBadge();
+  registerSW();
+});
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-btn').style.display = 'inline-flex';
+  document.getElementById('install-note').style.display = 'none';
+});
+
+function installPWA() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+  }
+}
+
+// ── SERVICE WORKER (inline) ───────────────────────────────────────────────────
+function registerSW() {
+  if (!('serviceWorker' in navigator)) return;
+  const swCode = `
+self.addEventListener('install', e => self.skipWaiting());
+self.addEventListener('activate', e => clients.claim());
+self.addEventListener('push', e => {
+  const data = e.data ? e.data.json() : {title:'Mis Gastos', body:'Revisá tus gastos de hoy'};
+  e.waitUntil(self.registration.showNotification(data.title, {
+    body: data.body, icon: '/icon-192.png', badge: '/icon-192.png',
+    tag: 'gastos-diarios', renotify: true,
+    actions: [{action:'firmar', title:'Firmar ahora'}]
+  }));
+});
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(clients.openWindow('/'));
+});
+`;
+  const blob = new Blob([swCode], {type:'application/javascript'});
+  const url = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(url).catch(() => {});
+}
+
+// ── MANIFEST ──────────────────────────────────────────────────────────────────
+const manifest = {
+  name: 'Mis Gastos',
+  short_name: 'Gastos',
+  start_url: location.href,
+  display: 'standalone',
+  background_color: '#0f0f0f',
+  theme_color: '#0f0f0f',
+  icons: [
+    {src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="40" fill="%230f0f0f"/><text y="130" x="96" text-anchor="middle" font-size="120">💰</text></svg>', sizes:'192x192', type:'image/svg+xml'},
+    {src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="%230f0f0f"/><text y="360" x="256" text-anchor="middle" font-size="320">💰</text></svg>', sizes:'512x512', type:'image/svg+xml'}
+  ]
+};
+const mb = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
+document.getElementById('manifest-placeholder').href = URL.createObjectURL(mb);
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+function showSec(name, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-'+name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'pendientes') renderPendientes();
+  if (name === 'reporte') renderReporte();
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function toast(msg, type='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast' + (type ? ' '+type : '');
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ── PARSE NOTIF ───────────────────────────────────────────────────────────────
+function parseNotif() {
+  const txt = document.getElementById('notif-txt').value;
+  const montoM = txt.match(/\$\s?([\d.,]+)/);
+  const monto = montoM ? montoM[1].replace(/\./g,'').replace(',','.') : null;
+  const enM = txt.match(/en\s+([A-Za-záéíóúÁÉÍÓÚñÑ\s&']+?)(?:\s+con|\s+usando|\s+a\s|$)/i);
+  const comercio = enM ? enM[1].trim() : null;
+  if (!monto) { toast('No detecté monto. Cargá a mano.', 'error'); return; }
+  document.getElementById('p-monto').textContent = '$' + parseFloat(monto).toLocaleString('es-AR');
+  document.getElementById('p-comercio').textContent = comercio || '(no detectado)';
+  document.getElementById('parse-box').style.display = 'block';
+  window._parsed = { monto: parseFloat(monto), comercio: comercio || '' };
+}
+
+function useParsed() {
+  if (!window._parsed) return;
+  document.getElementById('m-monto').value = window._parsed.monto;
+  document.getElementById('m-desc').value = window._parsed.comercio;
+  document.getElementById('parse-box').style.display = 'none';
+  document.getElementById('notif-txt').value = '';
+  toast('Datos cargados. Revisá la categoría.', 'success');
+}
+
+// ── REGISTRAR ─────────────────────────────────────────────────────────────────
+function registrar() {
+  const monto = parseFloat(document.getElementById('m-monto').value);
+  const desc = document.getElementById('m-desc').value.trim();
+  const fecha = document.getElementById('m-fecha').value;
+  const cat = document.getElementById('m-cat').value.replace(/^.\s/,'');
+  const metodo = document.getElementById('m-metodo').value;
+  if (!monto || monto <= 0) { toast('Ingresá un monto válido', 'error'); return; }
+  if (!desc) { toast('Agregá una descripción', 'error'); return; }
+  if (!fecha) { toast('Seleccioná una fecha', 'error'); return; }
+  const g = { id: Date.now(), monto, desc, fecha, cat, metodo, firmado: false, firmadoTs: null };
+  gastos.unshift(g);
+  save();
+  renderBadge();
+  document.getElementById('m-monto').value = '';
+  document.getElementById('m-desc').value = '';
+  toast('Gasto registrado', 'success');
+}
+
+// ── BADGE ─────────────────────────────────────────────────────────────────────
+function renderBadge() {
+  const n = gastos.filter(g => !g.firmado).length;
+  const b = document.getElementById('badge');
+  b.textContent = n;
+  b.style.display = n > 0 ? 'block' : 'none';
+}
+
+// ── PENDIENTES ────────────────────────────────────────────────────────────────
+function renderPendientes() {
+  const pending = gastos.filter(g => !g.firmado);
+  const today = new Date().toISOString().split('T')[0];
+  const signed = gastos.filter(g => g.firmado && g.firmadoTs && g.firmadoTs.startsWith(today));
+
+  const pc = document.getElementById('pendientes-container');
+  if (pending.length === 0) {
+    pc.innerHTML = `<div class="card"><div class="empty"><span class="empty-icon">✅</span>Sin gastos pendientes de firma</div></div>`;
+  } else {
+    pc.innerHTML = `<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div class="card-title" style="margin:0;">pendientes (${pending.length})</div>
+        <button class="btn btn-ghost btn-sm" onclick="firmarTodos()">Firmar todos</button>
+      </div>
+      ${pending.map(g => gastoItemHTML(g, true)).join('')}
+    </div>`;
+  }
+
+  const fc = document.getElementById('firmados-container');
+  if (signed.length > 0) {
+    fc.innerHTML = `<div class="card">
+      <div class="card-title">firmados hoy (${signed.length})</div>
+      ${signed.map(g => gastoItemHTML(g, false)).join('')}
+    </div>`;
+  } else { fc.innerHTML = ''; }
+}
+
+function gastoItemHTML(g, showActions) {
+  const icon = catIcon(g.cat);
+  const color = CAT_COLORS[g.cat] || '#888';
+  return `<div class="gasto-item">
+    <div class="gasto-icon" style="background:${color}22;">${icon}</div>
+    <div class="gasto-info">
+      <div class="gasto-desc">${g.desc}</div>
+      <div class="gasto-meta">${g.fecha} · ${g.cat}</div>
+    </div>
+    <div class="gasto-right">
+      <span class="gasto-amount">$${g.monto.toLocaleString('es-AR')}</span>
+      ${showActions
+        ? `<div style="display:flex;gap:6px;">
+            <button class="btn btn-primary btn-sm sign-btn-anim" onclick="firmar(${g.id})">Firmar</button>
+            <button class="del-btn" onclick="eliminar(${g.id})">✕</button>
+           </div>`
+        : `<span class="badge badge-signed">firmado</span>`
+      }
+    </div>
+  </div>`;
+}
+
+function catIcon(cat) {
+  const icons = {'Comida':'🍽','Supermercado':'🛒','Transporte':'🚌','Entretenimiento':'🎬','Salud':'💊','Ropa':'👕','Servicios':'⚡','Otro':'📦'};
+  return icons[cat] || '📦';
+}
+
+function firmar(id) {
+  const g = gastos.find(x => x.id === id);
+  if (!g) return;
+  g.firmado = true; g.firmadoTs = new Date().toISOString();
+  save(); renderBadge(); renderPendientes();
+  toast('Firmado ✓', 'success');
+}
+
+function firmarTodos() {
+  const ts = new Date().toISOString();
+  gastos.filter(g => !g.firmado).forEach(g => { g.firmado = true; g.firmadoTs = ts; });
+  save(); renderBadge(); renderPendientes();
+  toast('Todos firmados ✓', 'success');
+}
+
+function eliminar(id) {
+  if (!confirm('¿Eliminar este gasto?')) return;
+  gastos = gastos.filter(x => x.id !== id);
+  save(); renderBadge(); renderPendientes();
+  toast('Eliminado');
+}
+
+// ── REPORTE ───────────────────────────────────────────────────────────────────
+function cambiarMes(d) {
+  viewMes = new Date(viewMes.getFullYear(), viewMes.getMonth() + d, 1);
+  renderReporte();
+}
+
+function renderReporte() {
+  const y = viewMes.getFullYear(), m = viewMes.getMonth();
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  document.getElementById('mes-label').textContent = meses[m] + ' ' + y;
+
+  const mes = gastos.filter(g => {
+    const d = new Date(g.fecha + 'T00:00:00');
+    return d.getFullYear() === y && d.getMonth() === m;
+  });
+
+  const total = mes.reduce((s, g) => s + g.monto, 0);
+  document.getElementById('r-total').textContent = '$' + total.toLocaleString('es-AR', {maximumFractionDigits:0});
+  document.getElementById('r-count').textContent = mes.length;
+  document.getElementById('r-signed').textContent = mes.filter(g=>g.firmado).length + '/' + mes.length;
+
+  // Cats
+  const cats = {};
+  mes.forEach(g => { cats[g.cat] = (cats[g.cat]||0) + g.monto; });
+  const maxCat = Math.max(...Object.values(cats), 1);
+  const rc = document.getElementById('r-cats');
+  rc.innerHTML = Object.keys(cats).length === 0
+    ? '<div class="empty" style="padding:20px 0;">Sin datos este mes</div>'
+    : Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([cat, amt]) => `
+        <div class="cat-bar">
+          <div class="cat-header">
+            <span class="cat-name">${catIcon(cat)} ${cat}</span>
+            <span class="cat-amount">$${amt.toLocaleString('es-AR',{maximumFractionDigits:0})}</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(amt/maxCat*100)}%;background:${CAT_COLORS[cat]||'#888'};"></div></div>
+        </div>`).join('');
+
+  // Days
+  const dias = {};
+  mes.forEach(g => { if(!dias[g.fecha]) dias[g.fecha]=[]; dias[g.fecha].push(g); });
+  const rd = document.getElementById('r-dias');
+  const sorted = Object.keys(dias).sort().reverse();
+  rd.innerHTML = sorted.length === 0
+    ? '<div class="empty" style="padding:20px 0;">Sin datos</div>'
+    : sorted.map(fecha => {
+        const items = dias[fecha];
+        const dt = items.reduce((s,g)=>s+g.monto,0);
+        const dl = new Date(fecha+'T00:00:00').toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'});
+        return `<div class="day-header"><span>${dl}</span><span class="day-total">$${dt.toLocaleString('es-AR',{maximumFractionDigits:0})}</span></div>
+          ${items.map(g=>`<div class="gasto-item">
+            <div class="gasto-icon" style="background:${CAT_COLORS[g.cat]||'#888'}22;font-size:14px;">${catIcon(g.cat)}</div>
+            <div class="gasto-info">
+              <div class="gasto-desc" style="font-size:13px;">${g.desc}</div>
+              <div class="gasto-meta">${g.metodo}</div>
+            </div>
+            <div class="gasto-right">
+              <span class="gasto-amount" style="font-size:13px;">$${g.monto.toLocaleString('es-AR')}</span>
+              <span class="badge ${g.firmado?'badge-signed':'badge-pending'}">${g.firmado?'✓ firmado':'pendiente'}</span>
+            </div>
+          </div>`).join('')}`;
+      }).join('');
+}
+
+// ── NOTIFICACIONES ────────────────────────────────────────────────────────────
+async function toggleNotif() {
+  const on = document.getElementById('notif-sw').checked;
+  if (on) {
+    if (!('Notification' in window)) {
+      toast('Tu navegador no soporta notificaciones', 'error');
+      document.getElementById('notif-sw').checked = false; return;
+    }
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') {
+      toast('Permiso denegado. Habilitá desde ajustes del navegador.', 'error');
+      document.getElementById('notif-sw').checked = false; return;
+    }
+    localStorage.setItem('notif_on', '1');
+    toast('Notificaciones activadas ✓', 'success');
+  } else {
+    localStorage.setItem('notif_on', '0');
+    toast('Notificaciones desactivadas');
+  }
+  updateNotifStatus();
+}
+
+function updateNotifStatus() {
+  const on = localStorage.getItem('notif_on') === '1';
+  const hora = localStorage.getItem('hora_firma') || '21:00';
+  document.getElementById('notif-status-btn').textContent = on ? '🔔' : '🔕';
+  document.getElementById('notif-sw-sub').textContent = on
+    ? `Activadas · recordatorio a las ${hora} hs`
+    : 'Desactivadas';
+}
+
+function guardarHora() {
+  const h = document.getElementById('hora-firma').value;
+  localStorage.setItem('hora_firma', h);
+  updateNotifStatus();
+  toast('Horario guardado: ' + h + ' hs', 'success');
+}
+
+function testNotif() {
+  if (Notification.permission !== 'granted') {
+    toast('Primero activá las notificaciones', 'error'); return;
+  }
+  const pending = gastos.filter(g => !g.firmado).length;
+  new Notification('Mis Gastos 💰', {
+    body: pending > 0
+      ? `Tenés ${pending} gasto${pending>1?'s':''} pendiente${pending>1?'s':''} de firma`
+      : 'No tenés gastos pendientes. ¡Todo al día!',
+    tag: 'test-gastos'
+  });
+}
+
+// ── SCHEDULE CHECK ────────────────────────────────────────────────────────────
+function scheduleCheck() {
+  setInterval(() => {
+    const on = localStorage.getItem('notif_on') === '1';
+    if (!on || Notification.permission !== 'granted') return;
+    const hora = localStorage.getItem('hora_firma') || '21:00';
+    const [hh, mm] = hora.split(':').map(Number);
+    const now = new Date();
+    if (now.getHours() === hh && now.getMinutes() === mm) {
+      const lastNotif = localStorage.getItem('last_notif');
+      const today = now.toISOString().split('T')[0];
+      if (lastNotif === today) return;
+      localStorage.setItem('last_notif', today);
+      const pending = gastos.filter(g => !g.firmado).length;
+      if (pending > 0) {
+        new Notification('Mis Gastos 💰', {
+          body: `Tenés ${pending} gasto${pending>1?'s':''} pendiente${pending>1?'s':''} de firma`,
+          tag: 'gastos-diarios'
+        });
+      }
+    }
+  }, 30000);
+}
+
+// ── EXPORT / BORRAR ───────────────────────────────────────────────────────────
+function exportar() {
+  const blob = new Blob([JSON.stringify(gastos, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'mis-gastos-' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
+}
+
+function borrarTodo() {
+  if (!confirm('¿Borrar TODOS los gastos? Esta acción no se puede deshacer.')) return;
+  gastos = []; save(); renderBadge();
+  toast('Datos eliminados');
+}
+</script>
+</body>
+</html>
